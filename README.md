@@ -28,5 +28,4 @@ TOTPQRCodeData  : otpauth://totp/DUOHardwareToken(998-8129825)?secret=NKNKLAU5PE
 ```
 
 ## License
-
-[MIT](https://choosealicense.com/licenses/mit/)
+[Apache-2.0](https://choosealicense.com/licenses/apache-2.0/)
