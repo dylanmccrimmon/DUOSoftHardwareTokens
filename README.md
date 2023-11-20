@@ -26,3 +26,7 @@ TOTPApplication : @{Secret=NKNKLAU5PEEN5ZBL7U6MVUYPCOINNRB7; Algorithm=SHA1; Dig
 DUOCSVData      : 998-8129825,6A9AA5829D7908DEE42BFD3CCAD30F1390D6C43F,30
 TOTPQRCodeData  : otpauth://totp/DUOHardwareToken(998-8129825)?secret=NKNKLAU5PEEN5ZBL7U6MVUYPCOINNRB7&algorithm=SHA1&digits=6&period=30
 ```
+
+## License
+
+[MIT](https://choosealicense.com/licenses/mit/)
