@@ -245,8 +245,6 @@ if (!$SkipTOTPUserVerification.IsPresent) {
     Write-Verbose "Skipped TOTP user verification"
 }
 
-
-
 # Contruct the web request to duo
 Write-Verbose "Contructing the web request for Duo"
 $values = @{

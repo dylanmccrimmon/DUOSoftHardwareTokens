@@ -14,7 +14,7 @@ PS C:\> Install-Script -Name DUOSoftHardwareTokens
 Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/dylanmccrimmon/DUOSoftHardwareTokens/main/DUOSoftHardwareTokens.ps1' -OutFile 'DUOSoftHardwareTokens.ps1'
 ```
 
-#### Usage
+### Usage
 
 ``` powershell
 .\DUOSoftHardwareTokens.ps1
@@ -27,9 +27,9 @@ DUOCSVData      : 998-8129825,6A9AA5829D7908DEE42BFD3CCAD30F1390D6C43F,30
 TOTPQRCodeData  : otpauth://totp/DUOHardwareToken(998-8129825)?secret=NKNKLAU5PEEN5ZBL7U6MVUYPCOINNRB7&algorithm=SHA1&digits=6&period=30
 ```
 
-#### Parameters
+### Parameters
 
-##### -APIHostName 
+#### -APIHostName 
 Specifies the API host name to use.
 
 ```yaml
@@ -41,7 +41,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-##### -APIIntegrationKey 
+#### -APIIntegrationKey 
 Specifies the API intergration key.
 
 ```yaml
@@ -53,7 +53,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-##### -APISecretKey
+#### -APISecretKey
 Specifies the API secret key.
 
 ```yaml
@@ -65,7 +65,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-##### -TokenPeriod 
+#### -TokenPeriod 
 Specifies the TOTP token period.
 
 ```yaml
@@ -78,7 +78,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-##### -TokenDigits 
+#### -TokenDigits 
 Specifies the TOTP token digits.
 
 ```yaml
@@ -91,7 +91,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-##### -SkipTOTPUserVerification 
+#### -SkipTOTPUserVerification 
 Specifies if the script should skip the user verification of the TOTP code.
 
 ```yaml
@@ -103,7 +103,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-##### -SkipTOTPQRCodeLink 
+#### -SkipTOTPQRCodeLink 
 Specifies if the script should skip displaying the QR Code link.
 
 ```yaml
@@ -115,7 +115,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-##### -OutputTOTPData 
+#### -OutputTOTPData 
 Specifies if the script should output PSCustomObject of the TOTP data.
 
 ```yaml
