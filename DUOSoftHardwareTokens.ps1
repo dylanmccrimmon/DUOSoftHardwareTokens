@@ -28,9 +28,6 @@
 #>
 Param(
     [parameter()]
-    [switch] $ShowLog,
-
-    [parameter()]
     [string] $APIHostName,
 
     [parameter()]
@@ -40,11 +37,21 @@ Param(
     [string] $APISecretKey,
 
     [parameter()]
-    [int] $Period = 30,
+    [ValidateSet(30, 60)]
+    [Int16] $TOTPPeriod = 30,
 
     [parameter()]
     [ValidateSet(6, 8)]
-    [int] $Digits = 6
+    [Int16] $TOTPDigits = 6,
+
+    [parameter()]
+    [switch] $OutputTOTPData,
+
+    [parameter()]
+    [switch] $SkipTOTPUserVerification,
+
+    [parameter()]
+    [switch] $SkipTOTPQRCodeLink
 )
 
 Function New-SerialNumber() {
@@ -52,7 +59,7 @@ Function New-SerialNumber() {
     return "999-" + $RandomNumber
 }
 
-Function New-Seed() {
+Function New-Secret() {
     $RNG = [Security.Cryptography.RNGCryptoServiceProvider]::Create()
     [Byte[]]$x=1
     for($r=''; $r.length -lt 32){$RNG.GetBytes($x); if([char]$x[0] -clike '[2-7A-Z]'){$r+=[char]$x[0]}}
@@ -96,7 +103,7 @@ Function Convert-Base32ToHex($base32) {
     return $hex;
 }
 
-function New-DuoRequest(){
+Function New-DuoRequest(){
     param(
         [Parameter(ValueFromPipeline=$True,ValueFromPipelineByPropertyName=$True)]
             $apiHost,
@@ -152,34 +159,11 @@ function New-DuoRequest(){
     $httpRequest
 }
 
-Function Write-Log ($Message, $Severity = "INFO") {
-    if ($ShowLog) {
-        Write-Output "[$(Get-Date -Format "o")] [$($Severity)] $Message"
-    }
-}
-
-Write-Log "Generating Serial Number"
-$SerialNumber = New-SerialNumber
-Write-Log "Serial Number has been created"
-
-Write-Log "Generating Seed Number"
-$Seed = New-Seed
-Write-Log "Seed has been created"
-
-Write-Log "Convering Hex from seed"
-$Hex = (Convert-Base32ToHex($Seed)).ToUpper()
-Write-Log "Conversion complete"
-
-$TOTPQRCodeData = "otpauth://totp/DUOHardwareToken($($SerialNumber))?secret=$($Seed)&algorithm=SHA1&digits=$($Digits)&period=$($Period)"
-Write-Host "QR Code Link: https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=$TOTPQRCodeData"
-
-
-#### Check OTP 
-function Get-Otp($SECRET, $LENGTH, $WINDOW){
+Function Get-Otp($Secret, $Digits, $Period){
     $enc = [System.Text.Encoding]::UTF8
     $hmac = New-Object -TypeName System.Security.Cryptography.HMACSHA1
-    $hmac.key = Convert-HexToByteArray(Convert-Base32ToHex(($SECRET.ToUpper())))
-    $timeBytes = Get-TimeByteArray $WINDOW
+    $hmac.key = Convert-HexToByteArray(Convert-Base32ToHex(($Secret.ToUpper())))
+    $timeBytes = Get-TimeByteArray $Period
     $randHash = $hmac.ComputeHash($timeBytes)
     
     $offset = $randhash[($randHash.Length-1)] -band 0xf
@@ -188,66 +172,107 @@ function Get-Otp($SECRET, $LENGTH, $WINDOW){
     $fullOTP += ($randHash[$offset + 2] -band 0xff) * [math]::pow(2, 8)
     $fullOTP += ($randHash[$offset + 3] -band 0xff)
 
-    $modNumber = [math]::pow(10, $LENGTH)
+    $modNumber = [math]::pow(10, $Digits)
     $otp = $fullOTP % $modNumber
-    $otp = $otp.ToString("0" * $LENGTH)
+    $otp = $otp.ToString("0" * $Digits)
     return $otp
 }
 
-function Get-TimeByteArray($WINDOW) {
+Function Get-TimeByteArray($Period) {
     $span = (New-TimeSpan -Start (Get-Date -Year 1970 -Month 1 -Day 1 -Hour 0 -Minute 0 -Second 0) -End (Get-Date).ToUniversalTime()).TotalSeconds
-    $unixTime = [Convert]::ToInt64([Math]::Floor($span/$WINDOW))
+    $unixTime = [Convert]::ToInt64([Math]::Floor($span/$Period))
     $byteArray = [BitConverter]::GetBytes($unixTime)
     [array]::Reverse($byteArray)
     return $byteArray
 }
 
-function Convert-HexToByteArray($hexString) {
+Function Convert-HexToByteArray($hexString) {
     $byteArray = $hexString -replace '^0x', '' -split "(?<=\G\w{2})(?=\w{2})" | %{ [Convert]::ToByte( $_, 16 ) }
     return $byteArray
 }
 
-$OTPVerified = $false
-do {
-    $response = Read-Host -Prompt 'Please enter the TOTP code displayed in your auth app? [OTP or Q to quit]'
-    $otp = Get-Otp -SECRET $Seed -LENGTH $Digits -WINDOW $Period
-    if ($response -eq $otp) {
-        Write-Host "TOTP is correct. Authenticator application seems to be working correctly"
-        $OTPVerified = $true
-    } elseif ($response -eq 'Q') {
-        exit
-    } else {
-        Write-Host "TOTP is incorrect. Please try again or check your authentictor app."
+Write-Verbose "Generating Serial Number"
+$SerialNumber = New-SerialNumber
+Write-Verbose "Serial Number has been created"
+
+Write-Verbose "Generating Secret"
+$TOTPSecret = New-Secret
+Write-Verbose "Secret has been created"
+
+Write-Verbose "Convering Hex from Secret"
+$TOTPSecretHex = (Convert-Base32ToHex($TOTPSecret)).ToUpper()
+Write-Verbose "Conversion complete"
+
+if ($SkipTOTPQRCodeLink.IsPresent) {
+    Write-Verbose "Constructing QRCode data string"
+    $TOTPQRCodeData = "otpauth://totp/DUOHardwareToken($($SerialNumber))?secret=$($TOTPSecret)&issuer=DUOSoftHardwareTokens&algorithm=SHA1&digits=$($TOTPDigits)&period=$($TOTPPeriod)"
+    Write-Host "QR Code Link: https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=$TOTPQRCodeData"
+}
+
+if ($OutputTOTPData.IsPresent) {
+    $TOTPData = [PSCustomObject]@{
+        Issuer      = 'DUOHardwareTokens'
+        Account     = "DUOHardwareToken($($SerialNumber))"
+        Secret      = $TOTPSecret
+        Algorithm   = 'HMAC-SHA-1'
+        Digits      = $TOTPDigits
+        Period      = $TOTPPeriod
     }
-} until ($OTPVerified)
+    Write-Output $TOTPData
+}
 
-#### End of Check OTP 
+## Check TOTP token with the user 
+if (!$SkipTOTPUserVerification.IsPresent) {
+    Write-Verbose "Starting TOTP user verification"
+    $OTPVerified = $false
+    do {
+        $response = Read-Host -Prompt 'Please enter the TOTP code displayed in your auth app? [OTP or Q to quit]'
+        $otp = Get-Otp -Secret $TOTPSecret -Digits $TOTPDigits -Period $TOTPPeriod
+        if ($response -eq $otp) {
+            Write-Verbose "TOTP verification attempt was successful"
+            Write-Host "TOTP is correct. Authenticator application seems to be working correctly"
+            $OTPVerified = $true
+        } elseif ($response -eq 'Q') {
+            Write-Verbose "User requested to quit"
+            Write-Verbose "Exiting script"
+            exit
+        } else {
+            Write-Verbose "TOTP verification attempt was unsuccessful"
+            Write-Host "TOTP is incorrect. Please try again or check your authentictor app."
+        }
+    } until ($OTPVerified)
+} else {
+    Write-Verbose "Skipped TOTP user verification"
+}
 
 
-#Contruct the web request to duo
+
+# Contruct the web request to duo
+Write-Verbose "Contructing the web request for Duo"
 $values = @{
     apiHost = $APIHostName
     apiEndpoint     = '/admin/v1/tokens'
     requestMethod   = 'post'
     requestParams   = @{
-        type="t$($Digits)"
+        type="t$($TOTPDigits)"
         serial=$SerialNumber
-        secret=$Hex
-        totp_step=$Period
+        secret=$TOTPSecretHex
+        totp_step=$TOTPPeriod
     }
     apiSecret       = $APISecretKey
     apiKey          = $APIIntegrationKey
 }
 $contructWebRequest = New-DuoRequest @values
+Write-Verbose "Contructed the web request for Duo"
 
-# Send the request
-Write-Log "Importing token via API"
-$wr = Invoke-WebRequest @contructWebRequest
+Write-Verbose "Posting token data to Duo"
+$DuoWebRequest = Invoke-WebRequest @contructWebRequest
 
-if ($wr.StatusCode -eq 200) {
-    Write-Log "Successfully Imported"
+if ($DuoWebRequest.StatusCode -eq 200) {
+    Write-Host "Token data successfully sent to Duo. You can now manage the token in the Duo admin dashboard."
 } else {
-    Write-Log "Could not import via the API. You can manaully import with the csv data below" -Severity 'ERROR'
-    $DUOCSVData = "$($SerialNumber),$($Hex),$($Period)"
-    Write-Log "Duo CSV token data: $DUOCSVData"
+    Write-Verbose "Token data failed posted to Duo via the API"
+    Write-Verbose "Could not import via the API. You can manaully import with the csv data below"
+    Write-Host "The script wasn't able to import the hardware token into Duo. You can manually added to token using the data provided below"
+    Write-Host "Duo CSV token data: $($SerialNumber),$($TOTPSecretHex),$($TOTPPeriod)"
 }
