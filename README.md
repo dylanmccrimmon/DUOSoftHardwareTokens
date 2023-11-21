@@ -1,23 +1,23 @@
 # DUOSoftHardwareTokens
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-### Overview
+## Overview
 DUOSoftHardwareTokens is a script that creates soft hardware tokens (TOTP) for DUO security and imports them to Duo via the Duo Admin API. 
 
 From the script output, you can import the soft hardware tokens (TOTP) into apps such as Google Authenticator and Microsoft Authenticator or into a password database like Keeper.
 
-### Prerequisites
+## Prerequisites
 - Duo Admin API details with `Grant write resource` permission.
   - Setup instructions for the Duo Admin API can be [found here](https://duo.com/docs/adminapi).
 
-### Installation / Download
-#### Download from Github
+## Installation / Download
+### Download from Github
 ``` powershell
 Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/dylanmccrimmon/DUOSoftHardwareTokens/main/DUOSoftHardwareTokens.ps1' -OutFile 'DUOSoftHardwareTokens.ps1'
 ```
 
-### Examples
-#### Default
+## Examples
+### Default
 
 ``` powershell
 DUOSoftHardwareTokens.ps1 -DUOAPIHostName 'api-XXXXX.duosecurity.com' -DUOAPIIntegrationKey 'XXXXXXXX' -DUOAPISecretKey 'XXXXXXXXXXXXXX'
@@ -29,7 +29,7 @@ TOTP is correct. Authenticator application seems to be working correctly
 Token data successfully sent to Duo. You can now manage the token in the Duo admin dashboard.
 ```
 
-#### Skip TOTP user verification
+### Skip TOTP user verification
 
 ``` powershell
 DUOSoftHardwareTokens.ps1 -DUOAPIHostName 'api-XXXXX.duosecurity.com' -DUOAPIIntegrationKey 'XXXXXXXX' -DUOAPISecretKey 'XXXXXXXXXXXXXX' -SkipTOTPUserVerification
@@ -39,7 +39,7 @@ QR Code Link: https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=otpa
 Token data successfully sent to Duo. You can now manage the token in the Duo admin dashboard. 
 ```
 
-#### Output TOTP data
+### Output TOTP data
 
 ``` powershell
 DUOSoftHardwareTokens.ps1 -DUOAPIHostName 'api-XXXXX.duosecurity.com' -DUOAPIIntegrationKey 'XXXXXXXX' -DUOAPISecretKey 'XXXXXXXXXXXXXX' -OutputTOTPData
@@ -60,7 +60,7 @@ Token data successfully sent to Duo. You can now manage the token in the Duo adm
 ```
 
 
-### Syntax
+## Syntax
 
 ``` powershell
 DUOSoftHardwareTokens.ps1
@@ -74,9 +74,9 @@ DUOSoftHardwareTokens.ps1
     [<CommonParameters>]
 ```
 
-### Parameters
+## Parameters
 
-#### -DUOAPIHostName 
+### -DUOAPIHostName 
 Specifies the DUO API host name to use.
 
 ```yaml
@@ -88,7 +88,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-#### -DUOAPIIntegrationKey 
+### -DUOAPIIntegrationKey 
 Specifies the DUO API intergration key.
 
 ```yaml
@@ -100,7 +100,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-#### -DUOAPISecretKey
+### -DUOAPISecretKey
 Specifies the DUO API secret key.
 
 ```yaml
@@ -112,7 +112,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-#### -TOTPPeriod 
+### -TOTPPeriod 
 Specifies the TOTP period.
 
 ```yaml
@@ -125,7 +125,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-#### -TOTPDigits 
+### -TOTPDigits 
 Specifies the TOTP digits.
 
 ```yaml
@@ -138,7 +138,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-#### -SkipTOTPUserVerification 
+### -SkipTOTPUserVerification 
 Specifies if the script should skip the user verification of the TOTP code.
 
 ```yaml
@@ -150,7 +150,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-#### -SkipTOTPQRCodeLink 
+### -SkipTOTPQRCodeLink 
 Specifies if the script should skip displaying the QR Code link.
 
 ```yaml
@@ -162,7 +162,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-#### -OutputTOTPData 
+### -OutputTOTPData 
 Specifies if the script should output PSCustomObject of the TOTP data.
 
 ```yaml
