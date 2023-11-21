@@ -1,21 +1,23 @@
 # DUOSoftHardwareTokens
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-Script that create soft hardware tokens for DUO security and add them to DUO via the API.
+### Overview
+DUOSoftHardwareTokens is a script that creates soft hardware tokens (TOTP) for DUO security and imports them to Duo via the Duo Admin API. 
+
+From the script output, you can import the soft hardware tokens (TOTP) into apps such as Google Authenticator and Microsoft Authenticator or into a password database like Keeper.
+
+### Prerequisites
+- Duo Admin API details with `Grant write resource` permission.
+  - Setup instructions for the Duo Admin API can be [found here](https://duo.com/docs/adminapi).
 
 ### Installation / Download
-<!-- ##### (Not yet working) Download from PowerShell Gallery
-``` powershell
-PS C:\> Install-Script -Name DUOSoftHardwareTokens
-``` -->
-
-##### Download from Github
+#### Download from Github
 ``` powershell
 Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/dylanmccrimmon/DUOSoftHardwareTokens/main/DUOSoftHardwareTokens.ps1' -OutFile 'DUOSoftHardwareTokens.ps1'
 ```
 
 ### Examples
-#### Example 1
+#### Default
 
 ``` powershell
 DUOSoftHardwareTokens.ps1 -DUOAPIHostName 'api-XXXXX.duosecurity.com' -DUOAPIIntegrationKey 'XXXXXXXX' -DUOAPISecretKey 'XXXXXXXXXXXXXX'
@@ -27,7 +29,7 @@ TOTP is correct. Authenticator application seems to be working correctly
 Token data successfully sent to Duo. You can now manage the token in the Duo admin dashboard.
 ```
 
-#### Example 2
+#### Skip TOTP user verification
 
 ``` powershell
 DUOSoftHardwareTokens.ps1 -DUOAPIHostName 'api-XXXXX.duosecurity.com' -DUOAPIIntegrationKey 'XXXXXXXX' -DUOAPISecretKey 'XXXXXXXXXXXXXX' -SkipTOTPUserVerification
@@ -37,7 +39,7 @@ QR Code Link: https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=otpa
 Token data successfully sent to Duo. You can now manage the token in the Duo admin dashboard. 
 ```
 
-#### Example 3
+#### Output TOTP data
 
 ``` powershell
 DUOSoftHardwareTokens.ps1 -DUOAPIHostName 'api-XXXXX.duosecurity.com' -DUOAPIIntegrationKey 'XXXXXXXX' -DUOAPISecretKey 'XXXXXXXXXXXXXX' -OutputTOTPData
