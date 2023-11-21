@@ -1,9 +1,9 @@
 # DUOSoftHardwareTokens
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-Script that create soft hardware tokens for DUO security. From the output, you can copy and paste the DUOCSVData field into DUO.
+Script that create soft hardware tokens for DUO security and add them to DUO via the API.
 
-#### Installation / Download
+### Installation / Download
 <!-- ##### (Not yet working) Download from PowerShell Gallery
 ``` powershell
 PS C:\> Install-Script -Name DUOSoftHardwareTokens
@@ -14,23 +14,68 @@ PS C:\> Install-Script -Name DUOSoftHardwareTokens
 Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/dylanmccrimmon/DUOSoftHardwareTokens/main/DUOSoftHardwareTokens.ps1' -OutFile 'DUOSoftHardwareTokens.ps1'
 ```
 
-### Usage
+### Examples
+#### Example 1
+
+``` powershell
+DUOSoftHardwareTokens.ps1 -DUOAPIHostName 'api-XXXXX.duosecurity.com' -DUOAPIIntegrationKey 'XXXXXXXX' -DUOAPISecretKey 'XXXXXXXXXXXXXX'
+
+
+QR Code Link: https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=otpauth://totp/DUOHardwareToken(999-36507284)?secret=EGXNGO5GGUT542UTAIITH646MDXSKD6H&issuer=DUOSoftHardwareTokens&algorithm=SHA1&digits=6&period=30
+Please enter the TOTP code displayed in your auth app? [OTP or Q to quit]: 458850
+TOTP is correct. Authenticator application seems to be working correctly
+Token data successfully sent to Duo. You can now manage the token in the Duo admin dashboard.
+```
+
+#### Example 2
+
+``` powershell
+DUOSoftHardwareTokens.ps1 -DUOAPIHostName 'api-XXXXX.duosecurity.com' -DUOAPIIntegrationKey 'XXXXXXXX' -DUOAPISecretKey 'XXXXXXXXXXXXXX' -SkipTOTPUserVerification
+
+
+QR Code Link: https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=otpauth://totp/DUOHardwareToken(999-21870497)?secret=MDF2V6FGYMVAID2DTDMI3PKR3NNXGVLJ&issuer=DUOSoftHardwareTokens&algorithm=SHA1&digits=6&period=30
+Token data successfully sent to Duo. You can now manage the token in the Duo admin dashboard. 
+```
+
+#### Example 3
+
+``` powershell
+DUOSoftHardwareTokens.ps1 -DUOAPIHostName 'api-XXXXX.duosecurity.com' -DUOAPIIntegrationKey 'XXXXXXXX' -DUOAPISecretKey 'XXXXXXXXXXXXXX' -OutputTOTPData
+
+
+QR Code Link: https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=otpauth://totp/DUOHardwareToken(999-52107829)?secret=KRCGNX3MLGMTGLRW5KJIFIS4HSGM4IQP&issuer=DUOSoftHardwareTokens&algorithm=SHA1&digits=6&period=30
+
+Issuer    : DUOHardwareTokens
+Account   : DUOHardwareToken(999-52107829)
+Secret    : KRCGNX3MLGMTGLRW5KJIFIS4HSGM4IQP
+Algorithm : HMAC-SHA-1
+Digits    : 6
+Period    : 30
+
+Please enter the TOTP code displayed in your auth app? [OTP or Q to quit]: 984395
+TOTP is correct. Authenticator application seems to be working correctly
+Token data successfully sent to Duo. You can now manage the token in the Duo admin dashboard.
+```
+
+
+### Syntax
 
 ``` powershell
 .\DUOSoftHardwareTokens.ps1
-
-SerialNumber    : 998-8129825
-TOTPSecret      : NKNKLAU5PEEN5ZBL7U6MVUYPCOINNRB7
-TOTPSecretKey   : 6A9AA5829D7908DEE42BFD3CCAD30F1390D6C43F
-TOTPApplication : @{Secret=NKNKLAU5PEEN5ZBL7U6MVUYPCOINNRB7; Algorithm=SHA1; Digits=6; Period=30}
-DUOCSVData      : 998-8129825,6A9AA5829D7908DEE42BFD3CCAD30F1390D6C43F,30
-TOTPQRCodeData  : otpauth://totp/DUOHardwareToken(998-8129825)?secret=NKNKLAU5PEEN5ZBL7U6MVUYPCOINNRB7&algorithm=SHA1&digits=6&period=30
+    [[-DUOAPIHostName] <String>]
+    [[-DUOAPIIntegrationKey] <String>]
+    [[-DUOAPISecretKey] <String>]
+    [[-TOTPPeriod] <Int16>]
+    [[-TOTPDigits] <Int16>]
+    [-SkipTOTPUserVerification]
+    [-OutputTOTPData]
+    [<CommonParameters>]
 ```
 
 ### Parameters
 
-#### -APIHostName 
-Specifies the API host name to use.
+#### -DUOAPIHostName 
+Specifies the DUO API host name to use.
 
 ```yaml
 Type: String
@@ -41,8 +86,8 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-#### -APIIntegrationKey 
-Specifies the API intergration key.
+#### -DUOAPIIntegrationKey 
+Specifies the DUO API intergration key.
 
 ```yaml
 Type: String
@@ -53,8 +98,8 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-#### -APISecretKey
-Specifies the API secret key.
+#### -DUOAPISecretKey
+Specifies the DUO API secret key.
 
 ```yaml
 Type: String
@@ -65,8 +110,8 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-#### -TokenPeriod 
-Specifies the TOTP token period.
+#### -TOTPPeriod 
+Specifies the TOTP period.
 
 ```yaml
 Type: Int16
@@ -78,8 +123,8 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-#### -TokenDigits 
-Specifies the TOTP token digits.
+#### -TOTPDigits 
+Specifies the TOTP digits.
 
 ```yaml
 Type: Int16

@@ -28,13 +28,13 @@
 #>
 Param(
     [parameter()]
-    [string] $APIHostName,
+    [string] $DUOAPIHostName,
 
     [parameter()]
-    [string] $APIIntegrationKey,
+    [string] $DUOAPIIntegrationKey,
 
     [parameter()]
-    [string] $APISecretKey,
+    [string] $DUOAPISecretKey,
 
     [parameter()]
     [ValidateSet(30, 60)]
@@ -203,7 +203,7 @@ Write-Verbose "Convering Hex from Secret"
 $TOTPSecretHex = (Convert-Base32ToHex($TOTPSecret)).ToUpper()
 Write-Verbose "Conversion complete"
 
-if ($SkipTOTPQRCodeLink.IsPresent) {
+if (!$SkipTOTPQRCodeLink.IsPresent) {
     Write-Verbose "Constructing QRCode data string"
     $TOTPQRCodeData = "otpauth://totp/DUOHardwareToken($($SerialNumber))?secret=$($TOTPSecret)&issuer=DUOSoftHardwareTokens&algorithm=SHA1&digits=$($TOTPDigits)&period=$($TOTPPeriod)"
     Write-Host "QR Code Link: https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=$TOTPQRCodeData"
@@ -248,7 +248,7 @@ if (!$SkipTOTPUserVerification.IsPresent) {
 # Contruct the web request to duo
 Write-Verbose "Contructing the web request for Duo"
 $values = @{
-    apiHost = $APIHostName
+    apiHost = $DUOAPIHostName
     apiEndpoint     = '/admin/v1/tokens'
     requestMethod   = 'post'
     requestParams   = @{
@@ -257,8 +257,8 @@ $values = @{
         secret=$TOTPSecretHex
         totp_step=$TOTPPeriod
     }
-    apiSecret       = $APISecretKey
-    apiKey          = $APIIntegrationKey
+    apiSecret       = $DUOAPISecretKey
+    apiKey          = $DUOAPIIntegrationKey
 }
 $contructWebRequest = New-DuoRequest @values
 Write-Verbose "Contructed the web request for Duo"
