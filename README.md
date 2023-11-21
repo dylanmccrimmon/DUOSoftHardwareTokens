@@ -70,6 +70,7 @@ DUOSoftHardwareTokens.ps1
     [[-TOTPPeriod] <Int16>]
     [[-TOTPDigits] <Int16>]
     [-SkipTOTPUserVerification]
+    [-SkipTOTPQRCodeLink]
     [-OutputTOTPData]
     [<CommonParameters>]
 ```
