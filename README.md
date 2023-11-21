@@ -61,7 +61,7 @@ Token data successfully sent to Duo. You can now manage the token in the Duo adm
 ### Syntax
 
 ``` powershell
-.\DUOSoftHardwareTokens.ps1
+DUOSoftHardwareTokens.ps1
     [[-DUOAPIHostName] <String>]
     [[-DUOAPIIntegrationKey] <String>]
     [[-DUOAPISecretKey] <String>]
